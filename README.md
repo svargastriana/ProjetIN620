@@ -12,17 +12,23 @@ Aucune bibliothèque externe n’est nécessaire.
 
 ## Utilisation
 Tester chacune des questions une à une:
+    
     make qx
+    
     avec x allant de 1 à 12
 
 Lancer toute les questions du projet sur les automates cellulaires:
+    
     make ac
 
 Lancer toute les questions du projet sur les machines de Turing :
+    
     make mt
 
 Pour la question 13 :
+    
     make q13
+    
     Il faut faire par exemple: make q13 MACHINE=Machines/machine_0egal1.txt MOT=0101
 
 ## A noter :
