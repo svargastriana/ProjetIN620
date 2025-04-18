@@ -1,0 +1,28 @@
+#Machine Turing qui accepte si il y a le même nombre de 0 que 1
+
+initial: q0
+accept: q_accept
+
+# Étape 1 : chercher un 0 à matcher
+q0 0 -> q1 X R
+q0 1 -> q2 X R
+q0 X -> q0 X R
+q0 □ -> q_accept □ R
+
+# Étape 2 : après avoir trouvé un 0, chercher un 1
+q1 0 -> q1 0 R
+q1 X -> q1 X R
+q1 1 -> q3 X L
+q1 □ -> q_reject □ R
+
+# Étape 2 bis : après avoir trouvé un 1, chercher un 0
+q2 1 -> q2 1 R
+q2 X -> q2 X R
+q2 0 -> q3 X L
+q2 □ -> q_reject □ R
+
+# Étape 3 : retour au début
+q3 0 -> q3 0 L
+q3 1 -> q3 1 L
+q3 X -> q3 X L
+q3 □ -> q0 □ R

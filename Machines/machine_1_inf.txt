@@ -1,0 +1,7 @@
+#machine qui écrit 1 à droite à l'infini
+initial: q0
+accept: qf
+
+q0 □ -> q0 1 R
+q0 1 -> q0 □ R
+q0 0 -> q0 □ R
