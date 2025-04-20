@@ -1,0 +1,6 @@
+#machine qui inverse les bits, les passes de 0 à 1 et inversement, puis ACCEPT à la fin
+initial: q0
+accept: qf
+q0 0 -> q0 1 R
+q0 1 -> q0 0 R
+q0 □ -> qf □ R

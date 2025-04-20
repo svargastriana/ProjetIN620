@@ -1,0 +1,12 @@
+#Machine qui parcourt le mot sans modification, puis alterne l'écriture de 0 et 1 à l’infini
+initial: q0
+accept: 
+#déplacement jusqu'à la fin du mot
+q0 0 -> q0 0 R
+q0 1 -> q0 1 R
+
+#Quand on arrive sur la fin, on commence à alterner :
+q0 □ -> q1 0 R
+# Phase 2 : alternance
+q1 □ -> q2 1 R
+q2 □ -> q1 0 R
