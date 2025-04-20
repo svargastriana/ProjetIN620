@@ -1,26 +1,24 @@
 import re
 
 
-
 class Automate_cellulaire:
 
     def __init__(self, espace_etats, transitions, etat_par_defaut):
         self.espace_etats = set(espace_etats)
         self.transitions = transitions
         self.etat_par_defaut = etat_par_defaut
+        self.config = {}
 
     def construire_configuration(self, mot):
         config = {}
         for i, etat in enumerate(mot):
             config[i] = etat 
+        self.config = config
 
         return config
 
-        
     def get_etat(self, i):
         return self.config.get(i, self.etat_par_defaut)
-
-
 
 
 def lire_automate(fichier):
@@ -52,7 +50,6 @@ def lire_automate(fichier):
 
             espace_etats.update(config_tuple)
             espace_etats.add(etat)
-
 
 
     return Automate_cellulaire(espace_etats, transitions, etat_par_defaut), config_initiale.strip()
@@ -94,12 +91,14 @@ def simulation(mot,automate, etapes = 1000, transition_speciale = None):
     for i in range(etapes):
         config = etape_1(automate, config)
         
-        # if transition_speciale:
+        if transition_speciale and mot_lisible(config) == transition_speciale:
+            print("Transition spéciale trouvée :", transition_speciale)
+            break
 
-        print(config)
-        # if config in config_effectues:
-        #     print("Configuration déjà rencontrée, arrêt de la simulation.")
-        #     break
+
+        if config in config_effectues:
+            print("Configuration déjà rencontrée, arrêt de la simulation.")
+            break
 
         config_effectues.append(config)
 
@@ -109,8 +108,3 @@ def simulation(mot,automate, etapes = 1000, transition_speciale = None):
 
 
 
-# Exemple d'utilisation
-# Assurez-vous que le fichier 'règle_110.txt' est dans le même répertoire que ce script
-
-automate,mot = lire_automate("règle_110.txt")
-simulation(mot, automate, 8)
