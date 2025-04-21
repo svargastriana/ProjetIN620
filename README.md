@@ -10,6 +10,11 @@ Aucune bibliothèque externe n’est nécessaire.
 - main.py : script principal pour tout lancer
 - machine.txt : description de la machine de Turing (état, transitions…)
 
+## Sous-dossier :
+- /Automates : contient tous nos automates cellulaires
+- /Machines : contient toutes les machines de turing
+- /Questions : contient les fichiers python permettant de répondre à chacune questions une à une
+  
 ## Utilisation
 Tester chacune des questions une à une:
     
