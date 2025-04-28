@@ -37,6 +37,8 @@ q12:
 mt:
 	@make q8 && make q9 && make q10 && make q11 && make q12
 
+ac:
+	@make q1 && make q2 && make q3 && make q4 && make q6 && make q7
 
 #Exemple d'utilisation:
 # make q13 MACHINE=Machines/machine_0egal1.txt MOT=0101
