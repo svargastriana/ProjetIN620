@@ -1,0 +1,12 @@
+initial: q0
+accept: q_accept
+
+# Avance jusqu'à la fin du mot
+q0 0 -> q0 0 R
+q0 1 -> q0 1 R
+q0 □ -> q1 □ L
+
+# Recule en modifiant uniquement les '1'
+q1 0 -> q1 0 L
+q1 1 -> q1 □ L
+q1 □ -> q_accept □ R 

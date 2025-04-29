@@ -5,12 +5,12 @@ Utilisation :
     python main.py <machine_turing.txt> <mot_initial> [nombre_de_pas]
 
 Exemple :
-    python main.py exemple_MT.txt 1101 25
+    make q13 MACHINE=Machines/machine_annule_1.txt MOT=0101
 """
 
 import sys
 from typing import Dict
-from AutomateCellulaire import Automate_cellulaire, etape_1, mot_lisible
+from AutomateCellulaire import Automate_cellulaire, etape_1, mot_lisible, simulation
 from MachineTuring import lire_machine_turing, initialiser_configuration, simuler
 
 def encoder_cellule(etat_tete, symbole):
@@ -19,105 +19,134 @@ def encoder_cellule(etat_tete, symbole):
     -Si la tête est présente, on encode avec son état (ex : q1:0)
     -Sinon, on encode avec une étoile (ex : *:1)
     """
-    return f"{etat_tete}:{symbole}"
+    return f"{etat_tete}:{symbole}"  #retourne la cellule encodée
 
 def construire_automate_cellulaire_depuis_MT(machine):
     """
     Construit un automate cellulaire qui simule exactement la machine de Turing donnée.
     """
-    ALPHABET = {'0', '1', '□'}  #alphabet que l'on utilise
-    AUCUNE_TETE = '*' #correspond au symbole quand la tête n'est pas dans la case
-    tous_les_etats = {encoder_cellule(AUCUNE_TETE, symbole) for symbole in ALPHABET} #tous les états possibles
-    #ajoute les états qui sont dans la machine
+    ALPHABET = {'0', '1', '□'}  # alphabet utilisé par la machine de Turing
+    AUCUNE_TETE = '*'  # symbole utilisé pour indiquer l'absence de tête
+    tous_les_etats = {encoder_cellule(AUCUNE_TETE, symbole) for symbole in ALPHABET}  # tous les états sans tête
+
+    # on ajoute les états avec la tête pour tous les états de la machine
     for (etat, _) in machine.transitions.keys():
         tous_les_etats.update({encoder_cellule(etat, symbole) for symbole in ALPHABET})
-    #on vérif que les états finaux sont bien pris en compte
+
+    # on ajoute aussi les états finaux
     for etat_final in machine.etats_accept:
         tous_les_etats.update({encoder_cellule(etat_final, symbole) for symbole in ALPHABET})
-    regles_locales = {} #on définit les règles de bases sous forme de dictionnaire
-    #on aura dedans un tuple de 3 str, un str, exemple : (gauche, centre, droite), nouvelle valeur
-    #cas où aucune cellule n'a la tête
+
+    regles_locales = {}  # dictionnaire des règles de transition locales
+    # test si une règle essentielle est bien présente
+    test_triplet = (
+        encoder_cellule('*', '□'),    # gauche
+        encoder_cellule('q0', '1'),   # centre avec la tête sur 1
+        encoder_cellule('*', '1')     # droite
+    )
+    if test_triplet not in regles_locales:
+        print("[ERROR] La règle essentielle (*:□, q0:1, *:1) est absente !")
+    else:
+        print("[DEBUG] Règle essentielle bien présente.")
+
+
+    # Cas de base : si aucune cellule n'a la tête, le symbole central est conservé
     for gauche in ALPHABET:
         for centre in ALPHABET:
             for droite in ALPHABET:
-                triplet = (encoder_cellule(AUCUNE_TETE, gauche),encoder_cellule(AUCUNE_TETE, centre),encoder_cellule(AUCUNE_TETE, droite))
-                regles_locales[triplet] = encoder_cellule(AUCUNE_TETE, centre) #on garde le symbole
-    #le cas où la tête se trouve au centre
+                triplet = (
+                    encoder_cellule(AUCUNE_TETE, gauche),
+                    encoder_cellule(AUCUNE_TETE, centre),
+                    encoder_cellule(AUCUNE_TETE, droite)
+                )
+                regles_locales[triplet] = encoder_cellule(AUCUNE_TETE, centre)  # on garde le centre inchangé
+
+    # Cas où la tête est présente au centre : on applique les transitions de la MT
     for (etat, symbole_lu), transition in machine.transitions.items():
         for gauche_symbole in ALPHABET:
             for droite_symbole in ALPHABET:
-                cellule_avec_tete = encoder_cellule(etat, symbole_lu)
+                centre_symbole = symbole_lu  # on ne crée la règle que pour le symbole exact attendu
+
+                # on encode chaque cellule
                 gauche = encoder_cellule(AUCUNE_TETE, gauche_symbole)
+                centre = encoder_cellule(etat, centre_symbole)  # cellule centrale avec la tête
                 droite = encoder_cellule(AUCUNE_TETE, droite_symbole)
-                #on écrit le nouveau symbole qui remplace la tête
-                regles_locales[(gauche, cellule_avec_tete, droite)] = encoder_cellule(AUCUNE_TETE, transition.ecrire_symbole)
-                if transition.direction == 'R': #droite = R
+
+                # règle 1 : on écrit le nouveau symbole au centre sans tête
+                triplet_central = (gauche, centre, droite)
+                regles_locales[triplet_central] = encoder_cellule(AUCUNE_TETE, transition.ecrire_symbole)
+
+                if transition.direction == 'R':  # si la tête va à droite
                     for symbole_suivant in ALPHABET:
-                        regles_locales[(cellule_avec_tete, droite, encoder_cellule(AUCUNE_TETE, symbole_suivant))] = encoder_cellule(transition.etat_suivant, droite_symbole)
-                else :#gauche = L
+                        # règle 2 : on place la tête dans la cellule de droite
+                        triplet_droite = (
+                            centre,  # ancienne position de la tête
+                            droite,  # cellule qui reçoit la tête
+                            encoder_cellule(AUCUNE_TETE, symbole_suivant)
+                        )
+                        regles_locales[triplet_droite] = encoder_cellule(transition.etat_suivant, droite_symbole)
+                else:  # direction gauche
                     for symbole_precedent in ALPHABET:
-                        regles_locales[(encoder_cellule(AUCUNE_TETE, symbole_precedent), gauche, cellule_avec_tete)] = encoder_cellule(transition.etat_suivant, gauche_symbole)
-    #l'état par défault d'une cellule vide qui n'a pas de tête
+                        # règle 2 : on place la tête dans la cellule de gauche
+                        triplet_gauche = (
+                            encoder_cellule(AUCUNE_TETE, symbole_precedent),
+                            gauche,  # cellule qui reçoit la tête
+                            centre  # ancienne position de la tête
+                        )
+                        regles_locales[triplet_gauche] = encoder_cellule(transition.etat_suivant, gauche_symbole)
+
+    # état par défaut utilisé hors des bornes
     etat_par_defaut = encoder_cellule(AUCUNE_TETE, '□')
+
+    # debug pour voir combien de règles ont été créées
+    print(f"[DEBUG] Nombre de règles créées : {len(regles_locales)}")
+
     return Automate_cellulaire(tous_les_etats, regles_locales, etat_par_defaut)
 
 def convertir_config_MT_en_config_CA(config_MT):
     """
     Convertit une configuration de machine de Turing en une configuration d'automate cellulaire
     """
-    AUCUNE_TETE = '*'
-    config_CA = {} #un dico avec un [int,str]
-    #on parcourt toutes les cases connues du ruban
+    AUCUNE_TETE = '*'  #symbole pour cellule sans tête
+    config_CA = {}  #dictionnaire position -> état encodé
+
+    #on parcourt les cases définies du ruban
     for position, symbole in config_MT.ruban.items():
         etat_cellule = config_MT.etat if position == config_MT.position else AUCUNE_TETE
         config_CA[position] = encoder_cellule(etat_cellule, symbole)
-    #Si la tête est sur une cellule vide encore non définie
+
+    #si la tête est sur une cellule encore vide
     if config_MT.position not in config_MT.ruban:
         config_CA[config_MT.position] = encoder_cellule(config_MT.etat, '□')
-    return config_CA
 
-def simuler_automate_cellulaire(automate: Automate_cellulaire, config: Dict[int, str], nombre_etapes: int = 20):
-    """
-    Affiche une trace simple de l’évolution de l’automate cellulaire, comme pour la MT.
-    """
-    AUCUNE_TETE = '*'
-    for temps in range(nombre_etapes + 1):
-        #état et position de la tête
-        etat_courant = None
-        ruban_str = ""
-        positions = sorted(config.keys())
-        for i in range(min(positions), max(positions)+1):
-            cellule = config.get(i, automate.etat_par_defaut)
-            etat_cellule, symbole = cellule.split(":")
-            if etat_cellule != AUCUNE_TETE:
-                ruban_str += f"[{symbole}] "
-                etat_courant = etat_cellule
-            else:
-                ruban_str += f" {symbole}  "
-        etat_affichage = f"État: {etat_courant}" if etat_courant else "État: (inconnu)"
-        print(f"{etat_affichage} | Ruban: {ruban_str.strip()}")
-        config = etape_1(automate, config)
+    return config_CA  #on retourne la config encodée
 
 def main():
     if len(sys.argv) < 3:
-        print("Utilisation : python main.py <fichier_MT> <mot_initial> [nombre_de_pas] \n Exemple :\npython main.py Machines/machine_Oegal1.txt 1010 25")
-        sys.exit(1)
-    fichier_mt = sys.argv[1]
-    mot_initial= sys.argv[2]
-    nombre_de_pas = int(sys.argv[3]) if len(sys.argv) >= 4 else 20
-    machine = lire_machine_turing(fichier_mt) #on lance la simulation de la mahcine du turing pour comparer
-    configuration_initiale = initialiser_configuration(mot_initial, machine)
-    import copy #on fait une copie de la config initialial
-    config_MT_copie = copy.deepcopy(configuration_initiale)
-    print(config_MT_copie)
+        print("Utilisation : python main.py <fichier_MT> <mot_initial> [nombre_de_pas] \nExemple :\npython main.py Machines/machine_Oegal1.txt 1010 25")
+        sys.exit(1)  #on quitte si les arguments sont manquants
+
+    fichier_mt = sys.argv[1]  #récupère le chemin du fichier MT
+    mot_initial = sys.argv[2]  #récupère le mot initial
+    nombre_de_pas = int(sys.argv[3]) if len(sys.argv) >= 4 else 20  #définit le nombre d'étapes
+
+    machine = lire_machine_turing(fichier_mt)  #lit la machine depuis le fichier
+    configuration_initiale = initialiser_configuration(mot_initial, machine)  #initialise la config MT
+
+    import copy
+    config_MT_copie = copy.deepcopy(configuration_initiale)  #on copie la config pour la simulation CA
+
+    print(config_MT_copie)  #affiche la configuration initiale
     print("\n=====  Simulation directe de la machine de Turing  =====")
-    simuler(machine, configuration_initiale, max_etapes=nombre_de_pas)
-    #on simule l'automate cellulaire depuis la machine de turing
-    automate = construire_automate_cellulaire_depuis_MT(machine)
-    config_CA = convertir_config_MT_en_config_CA(config_MT_copie)
+    simuler(machine, configuration_initiale, max_etapes=nombre_de_pas)  #simule la MT
+
+    automate = construire_automate_cellulaire_depuis_MT(machine)  #construit l'automate depuis la MT
+    config_CA = convertir_config_MT_en_config_CA(config_MT_copie)  #convertit la config MT en config CA
+
     print("\n=====  Simulation par l’automate cellulaire équivalent  =====")
-    simuler_automate_cellulaire(automate, config_CA, nombre_de_pas)
-
-
+    print("\n[DEBUG] Configuration initiale de l'automate cellulaire :")
+    for k in sorted(config_CA.keys()):
+        print(f"  {k}: {config_CA[k]}")
+    simulation(config_CA, automate, etapes=nombre_de_pas)
 if __name__ == "__main__":
-    main()
+    main()  #lancement du programme principal

@@ -95,7 +95,7 @@ def simuler(machine, config, max_etapes=1000):
         - on arrive dans l'état ACCEPT
         - aucune transition définie pour l'état actuel (REJECT)
         - nombre d'étapes trop élévé (STOP)"""
-    for i in range(max_etapes):
+    for i in range(max_etapes+1):
         afficher(config) #on affiche la config : ruban, tête, état
         if config.etat in machine.etats_accept: #si la machine se retrouve dans un état accept alors on s'arrête et on ACCEPT
             print(f"\nACCEPT en {i} étapes")
