@@ -2,15 +2,15 @@
 Simulation d'une machine de Turing avec son équivalent en automate cellulaire.
 
 Utilisation :
-    python main.py <machine_turing.txt> <mot_initial> [nombre_de_pas]
-
+    python main.py <machine_turing.txt> <mot_initial> <nombre_de_pas>
+ou
+    make q13 MACHINE=<machine_turing.txt> MOT=<mot_initial> PAS=<nombre_de_pas>
 Exemple :
-    make q13 MACHINE=Machines/machine_annule_1.txt MOT=0101
+    make q13 MACHINE=Machines/machine_annule_1.txt MOT=0101 PAS=20
 """
 
 import sys
-from typing import Dict
-from AutomateCellulaire import Automate_cellulaire, etape_1, mot_lisible, simulation
+from AutomateCellulaire import Automate_cellulaire, simulation, mot_lisible
 from MachineTuring import lire_machine_turing, initialiser_configuration, simuler
 
 def encoder_cellule(etat_tete, symbole):
@@ -38,17 +38,6 @@ def construire_automate_cellulaire_depuis_MT(machine):
         tous_les_etats.update({encoder_cellule(etat_final, symbole) for symbole in ALPHABET})
 
     regles_locales = {}  # dictionnaire des règles de transition locales
-    # test si une règle essentielle est bien présente
-    test_triplet = (
-        encoder_cellule('*', '□'),    # gauche
-        encoder_cellule('q0', '1'),   # centre avec la tête sur 1
-        encoder_cellule('*', '1')     # droite
-    )
-    if test_triplet not in regles_locales:
-        print("[ERROR] La règle essentielle (*:□, q0:1, *:1) est absente !")
-    else:
-        print("[DEBUG] Règle essentielle bien présente.")
-
 
     # Cas de base : si aucune cellule n'a la tête, le symbole central est conservé
     for gauche in ALPHABET:
@@ -123,7 +112,7 @@ def convertir_config_MT_en_config_CA(config_MT):
 
 def main():
     if len(sys.argv) < 3:
-        print("Utilisation : python main.py <fichier_MT> <mot_initial> [nombre_de_pas] \nExemple :\npython main.py Machines/machine_Oegal1.txt 1010 25")
+        print("Utilisation : python main.py <machine_turing.txt> <mot_initial> <nombre_de_pas> \nou\nmake q13 MACHINE=<machine_turing.txt> MOT=<mot_initial> PAS=<nombre_de_pas>")
         sys.exit(1)  #on quitte si les arguments sont manquants
 
     fichier_mt = sys.argv[1]  #récupère le chemin du fichier MT
@@ -144,9 +133,7 @@ def main():
     config_CA = convertir_config_MT_en_config_CA(config_MT_copie)  #convertit la config MT en config CA
 
     print("\n=====  Simulation par l’automate cellulaire équivalent  =====")
-    print("\n[DEBUG] Configuration initiale de l'automate cellulaire :")
-    for k in sorted(config_CA.keys()):
-        print(f"  {k}: {config_CA[k]}")
+    print(f"Configuration après 0 étapes :", mot_lisible(config_CA))
     simulation(config_CA, automate, etapes=nombre_de_pas)
 if __name__ == "__main__":
     main()  #lancement du programme principal
