@@ -7,8 +7,7 @@ Aucune bibliothèque externe n’est nécessaire.
 ## Fichiers principaux :
 - MachineTuring.py : lecture et exécution de la machine de Turing
 - AutomateCellulaire.py : construction et simulation d’un automate cellulaire
-- main.py : script principal pour tout lancer
-- machine.txt : description de la machine de Turing (état, transitions…)
+- main.py : script principal pour lancer la Question 13
 
 ## Sous-dossier :
 - /Automates : contient tous nos automates cellulaires
