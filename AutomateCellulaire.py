@@ -107,21 +107,11 @@ def etape_1(automate, configuration):
 
         # on forme le triplet qui sert de clé de transition
         config_tuple = (gauche, centre, droite)
-        """
-        # === LOG DE DEBUG : utile pour comprendre l’évolution ===
-        print(f"[DEBUG] i={i}")
-        print(f"    gauche : {repr(gauche)}")
-        print(f"    centre : {repr(centre)}")
-        print(f"    droite : {repr(droite)}")
-        print(f"    tuple  : {config_tuple}")
-"""
         # on cherche la transition à appliquer pour ce triplet
         if config_tuple in automate.transitions:
             nouvel_etat = automate.transitions[config_tuple]
-            #print(f"    → MATCHED → {nouvel_etat}")
         else:
             nouvel_etat = centre  # si pas de règle, on conserve l’état central
-            #print(f"    → NO MATCH, default → {nouvel_etat}")
 
         # on ajoute l’état à la nouvelle config si nécessaire
         if min_i <= i <= max_i or nouvel_etat != automate.etat_par_defaut:
