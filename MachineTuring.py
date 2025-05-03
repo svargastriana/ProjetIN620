@@ -1,3 +1,7 @@
+import sys
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8') #pour afficher les accents et les cases vides dans la console
+
 class Transition:
     def __init__(self, etat_suivant, ecrire_symbole, direction):
         self.etat_suivant = etat_suivant
@@ -124,11 +128,3 @@ def afficher(config):
         else:
             ruban_str += f" {s} "
     print(f"État: {config.etat} | Ruban: {ruban_str}")
-
-
-"""
-if __name__ == "__main__":
-    machine = lire_machine_turing("machine.txt") #on lit la machine de turing dans notre fichier txt
-    config = initialiser_configuration("0101", machine) #on initialise la machine de turing avec un mot ici 0101 et la machine
-    simuler(machine, config) #on simule l'éxécution de notre machine de turing
-"""
