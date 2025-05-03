@@ -34,6 +34,24 @@ Pour la question 13 :
     make q13
     
     Il faut faire par exemple: make q13 MACHINE=Machines/machine_0egal1.txt MOT=0101
+    
+## Structure des fichiers
+
+### `machine_xxx.txt`
+
+Ces fichiers décrivent un automate fini avec les éléments suivants :
+
+- **Commentaires** — Pour documenter le fonctionnement ou les choix de conception.
+- **État(s) initial(aux)** — Déclarés pour indiquer le(s) point(s) de départ de l’automate.
+- **État(s) final(aux)** — Déclarés pour signaler les acceptations possibles.
+- **Transitions** — Sous forme de triplets `(état_depart, symbole, état_arrivée)`.
+
+### `automate_xxx.txt`
+
+Ces fichiers contiennent une configuration d’automate utilisée pour analyser un mot :
+
+- **Première ligne** : le **mot** à traiter.
+- **Lignes suivantes** : les **transitions** de l’automate, au même format que ci-dessus.
 
 ## A noter :
 
