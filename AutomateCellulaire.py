@@ -155,6 +155,7 @@ def simulation(config_ou_mot,automate, etapes = 1000, transition_speciale = None
     - une transition spéciale (optionnelle) qui arrête la simulation si elle est rencontrée
 
     On affiche à chaque étape la configuration courante et on vérifie si la configuration a déjà été rencontrée.
+    Si une configuration est rencontrée deux fois de suite, la simulation s'arrête.
     """
     if isinstance(config_ou_mot, str):
         config = automate.construire_configuration(config_ou_mot)
@@ -166,7 +167,7 @@ def simulation(config_ou_mot,automate, etapes = 1000, transition_speciale = None
     # On initialise une liste pour stocker les configurations déjà rencontrées
     # On ajoute la configuration initiale à cette liste
     config_effectues = []
-    
+
     for i in range(etapes-1):
         # On effectue une étape de simulation
         # et on met à jour la configuration courante
@@ -182,11 +183,11 @@ def simulation(config_ou_mot,automate, etapes = 1000, transition_speciale = None
 
         # On vérifie si la configuration courante a déjà été rencontrée
         # Si oui, on arrête la simulation
-        if config in config_effectues:
-            print("Configuration déjà rencontrée, arrêt de la simulation.")
+        if config_effectues and mot_courant == config_effectues[-1]:
+            print("Configuration recontrée 2 fois de suite, arrêt de la simulation.")
             break
 
-        config_effectues.append(config)
+        config_effectues.append(mot_courant)
 
         print(f"Configuration après {i + 1} étapes :", mot_lisible(config))
 
