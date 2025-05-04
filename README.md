@@ -7,8 +7,7 @@ Aucune bibliothèque externe n’est nécessaire.
 ## Fichiers principaux :
 - MachineTuring.py : lecture et exécution de la machine de Turing
 - AutomateCellulaire.py : construction et simulation d’un automate cellulaire
-- main.py : script principal pour tout lancer
-- machine.txt : description de la machine de Turing (état, transitions…)
+- main.py : script principal pour lancer la Question 13
 
 ## Sous-dossier :
 - /Automates : contient tous nos automates cellulaires
@@ -35,6 +34,26 @@ Pour la question 13 :
     make q13
     
     Il faut faire par exemple: make q13 MACHINE=Machines/machine_0egal1.txt MOT=0101
+
+## Structure des fichiers
+
+### `machine_xxx.txt`
+
+Ces fichiers décrivent une **machine de Turing** :
+
+- Commentaires (lignes commençant par `#`)
+- État initial (défini avec `initial:`)
+- États finaux (facultatifs, avec `accept:`)
+- Transitions au format :  
+  `état symbole_lu -> nouvel_état symbole_écrit direction`
+
+### `automate_xxx.txt`
+
+Ces fichiers décrivent un **automate cellulaire** :
+
+- Première ligne : le mot à analyser
+- Lignes suivantes : transitions de l’automate au format:  
+  `(état, symbole, état) -> nouvel_état`
 
 ## A noter :
 

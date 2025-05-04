@@ -85,56 +85,67 @@ def lire_automate(fichier):
 
     return Automate_cellulaire(espace_etats, transitions, etat_par_defaut), config_initiale.strip()
 
-
 def etape_1(automate, configuration):
     """
-    Cette fonction effectue une étape de simulation de l'automate cellulaire.
-    Elle prend en entrée l'automate et la configuration actuelle.
-    Elle renvoie la nouvelle configuration après une étape de simulation.
+    Cette fonction effectue une étape de simulation d’un automate cellulaire.
+    Elle parcourt toutes les cellules connues et applique les règles locales
+    en fonction du triplet (gauche, centre, droite) de chaque position.
     """
 
-    config_1 = {}
-    indices = configuration.keys()
-    # On récupère les indices de la configuration actuelle
-    # On utilise min et max pour déterminer les bornes de la configuration
-    min_i = min(indices)
-    max_i = max(indices)
+    config_1 = {}  # nouvelle configuration après une étape
+    indices = configuration.keys()  # ensemble des indices actuellement définis
+    min_i = min(indices)  # indice minimum connu
+    max_i = max(indices)  # indice maximum connu
 
-    # On ajoute une cellule de chaque côté pour gérer les transitions
-    # hors bornes. On utilise l'état par défaut pour ces cellules.
+    # on parcourt les indices élargis de -1 à +1 pour appliquer les règles correctement
     for i in range(min_i - 1, max_i + 2):
+
+        # on récupère les 3 états locaux : gauche, centre, droite
         gauche = configuration.get(i - 1, automate.etat_par_defaut)
         centre = configuration.get(i, automate.etat_par_defaut)
         droite = configuration.get(i + 1, automate.etat_par_defaut)
 
-        # On crée un tuple avec les états gauche, centre et droite
-        # et on utilise ce tuple pour trouver le nouvel état
-        # dans le dictionnaire de transitions de l'automate
+        # on forme le triplet qui sert de clé de transition
         config_tuple = (gauche, centre, droite)
-        nouvel_etat = automate.transitions.get(config_tuple, centre) 
+        # on cherche la transition à appliquer pour ce triplet
+        if config_tuple in automate.transitions:
+            nouvel_etat = automate.transitions[config_tuple]
+        else:
+            nouvel_etat = centre  # si pas de règle, on conserve l’état central
 
-        print(f"config_tuple: {config_tuple} -> nouvel_etat: {nouvel_etat}")
-
-        # On vérifie si l'indice est dans les bornes de la configuration actuelle
-        # Si oui, on met à jour la configuration avec le nouvel état
-        # Sinon, on laisse l'état par défaut
+        # on ajoute l’état à la nouvelle config si nécessaire
         if min_i <= i <= max_i or nouvel_etat != automate.etat_par_defaut:
             config_1[i] = nouvel_etat
 
-    return config_1
-
-
+    return config_1  # on retourne la configuration mise à jour
 
 def mot_lisible(config):
     """
-    Cette fonction permet de convertir la configuration en une chaîne de caractères lisible.
+    Cette fonction permet de convertir une configuration de l'automate en une chaîne lisible.
+    Elle affiche les symboles, et encadre ceux où la tête de lecture est présente.
     """
-    # On trie les indices de la configuration pour garantir l'ordre
-    # et on utilise une compréhension de liste pour créer la chaîne de caractères
-    return "".join(config[i] for i in sorted(config.keys()))
 
+    resultat = []  # liste contenant les symboles à afficher
 
-def simulation(mot,automate, etapes = 1000, transition_speciale = None):
+    for i in sorted(config.keys()):  # on parcourt les indices triés (gauche à droite)
+        etat = config[i]  # on récupère l'état de la cellule à cet indice
+
+        if ':' in etat:  # cas d'une cellule encodée avec format "etat:symbole"
+            etat_tete, symbole = etat.split(":")  # on sépare l'état de la tête et le symbole
+
+            if etat_tete != '*':  # si la tête est présente (différent de '*')
+                # on affiche le symbole entre crochets pour signaler la tête
+                resultat.append(f"[{symbole}]")
+            else:
+                # sinon, on affiche le symbole tel quel, encadré par des espaces pour lisibilité
+                resultat.append(f" {symbole} ")
+        else:
+            # cas d'un mot classique : on affiche directement le caractère (ex : '1', '0', etc.)
+            resultat.append(f" {etat} ")
+
+    return "".join(resultat)  # on retourne la chaîne finale
+
+def simulation(config_ou_mot,automate, etapes = 1000, transition_speciale = None):
 
     """
     Cette fonction permet de simuler l'automate cellulaire sur un mot donné.
@@ -145,15 +156,18 @@ def simulation(mot,automate, etapes = 1000, transition_speciale = None):
 
     On affiche à chaque étape la configuration courante et on vérifie si la configuration a déjà été rencontrée.
     """
-    config = automate.construire_configuration(mot)
+    if isinstance(config_ou_mot, str):
+        config = automate.construire_configuration(config_ou_mot)
+    else:
+        config = config_ou_mot.copy()  # si c'est déjà une config, on la copie
 
+    automate.config = config 
+    #print(automate.transitions)
     # On initialise une liste pour stocker les configurations déjà rencontrées
     # On ajoute la configuration initiale à cette liste
     config_effectues = []
-    config_effectues.append(config)
-
-
-    for i in range(etapes):
+    
+    for i in range(etapes-1):
         # On effectue une étape de simulation
         # et on met à jour la configuration courante
         config = etape_1(automate, config)

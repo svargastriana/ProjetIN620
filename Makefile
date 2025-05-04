@@ -41,6 +41,6 @@ ac:
 	@make q1 && make q2 && make q3 && make q4 && make q6 && make q7
 
 #Exemple d'utilisation:
-# make q13 MACHINE=Machines/machine_0egal1.txt MOT=0101
+# make q13 MACHINE=Machines/machine_annule_1.txt MOT=0101 PAS=20
 q13:
-	python3 main.py $(MACHINE) $(MOT)
+	python3 main.py $(MACHINE) $(MOT) $(PAS)
