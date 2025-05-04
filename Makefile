@@ -40,6 +40,10 @@ mt:
 ac:
 	@make q1 && make q2 && make q3 && make q4 && make q6 && make q7
 
+all:
+	@make q1 && make q2 && make q3 && make q4 && make q5 && make q6 && make q7 && make q8 && make q9 && make q10 && make q11 && make q12 && make q13
+
+
 #Exemple d'utilisation:
 # make q13 MACHINE=Machines/machine_annule_1.txt MOT=0101 PAS=20
 q13:
