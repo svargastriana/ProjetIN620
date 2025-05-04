@@ -158,7 +158,8 @@ def simulation(mot,automate, etapes = 1000, transition_speciale = None):
         # et on met à jour la configuration courante
         config = etape_1(automate, config)
         mot_courant = mot_lisible(config)
-        
+
+
         # On vérifie si la configuration courante est égale à la transition spéciale
         # Si oui, on arrête la simulation
         if transition_speciale and mot_courant== transition_speciale:
@@ -175,7 +176,7 @@ def simulation(mot,automate, etapes = 1000, transition_speciale = None):
 
         print(f"Configuration après {i + 1} étapes :", mot_lisible(config))
 
-    print("Fin de la simulation.")
+    print("Fin de la simulation.", automate.transitions)
 
 
 
