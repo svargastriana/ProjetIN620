@@ -59,6 +59,8 @@ Ces fichiers décrivent un **automate cellulaire** :
 
 - Pour les automates celulaires, tou les exemples s'éxécute sur le fichier "règle_110.txt", le mot associé est donc : "0000100"
   
-- pour les machines de Turing, tous les exemples s'éxécute sur le fichier "machine_inversion1_0.txt" avec comme mot "101", cette machine remplace les 1 par des 0 et les 0 par des 1.
+- Pour les machines de Turing, tous les exemples s'éxécute sur le fichier "machine_inversion1_0.txt" avec comme mot "101", cette machine remplace les 1 par des 0 et les 0 par des 1.
 
-- la question 5 est la même que la question 6 donc pas besoin de faire "make q5", qui lancera la même chose que "make q6". C'est donc pour la même raison que le fichier "Questions/Question5.py" n'existe pas.
+- La question 5 est la même que la question 6 donc pas besoin de faire "make q5", qui lancera la même chose que "make q6". C'est donc pour la même raison que le fichier "Questions/Question5.py" n'existe pas.
+
+- La commande "make all" ne prend pas en compte la question 13 qui doit être lancé indépendamment car elle demande des interactions utilisateurs. Exemple : "make q13 MACHINE=Machines/machine_annule_1.txt MOT=0101 PAS=20"
